@@ -1,8 +1,3 @@
-// gameboard is an array inside of Gameboard object
-// players are stored in objects
-// an object will control flow of game
-
-// minimize global code and utilize factories
 // if you only need a single instance of something (e.g. the gameboard, the displayController etc.) then wrap the factory inside an IIFE (module pattern) so it cannot be reused to create additional instances.
 // Each little piece of functionality should be able to fit in the game, player or gameboard objects.
 // Try to avoid thinking about the DOM and your HTML/CSS until your game is working.
@@ -34,16 +29,7 @@ const Cell = () => {
   return { addToken, getToken };
 };
 
-// Player factory
-// Inputs: shape
-// Outputs: shape
-const Player = (token) => {
-  const getToken = () => token;
-
-  return { getToken };
-};
-
-// GameBoard factory
+// gameBoard factory IIFE
 // Inputs: player1, player2
 // Outputs: gameBoard.board
 // private: gamestate enum,
@@ -61,8 +47,8 @@ const gameBoard = (() => {
 
   const getBoard = () => board;
 
-  const placeToken = (player, row, col) => {
-    board[row - 1][col - 1].addToken(player.getToken());
+  const placeToken = (playerToken, row, col) => {
+    board[row - 1][col - 1].addToken(playerToken);
   };
 
   const printBoard = () => {
@@ -75,40 +61,47 @@ const gameBoard = (() => {
   return { getBoard, placeToken, printBoard };
 })();
 
-// displayController factory
-// Inputs: GameBoard.board
-// Outputs: GameBoard.board
-// private: any DOM elements
+// gameController factory IIFE
+const gameController = (() => {
+  const players = [
+    {
+      name: "Player One",
+      token: "o",
+    },
+    {
+      name: "Player Two",
+      token: "x",
+    },
+  ];
 
-// Global code----------------------------------
-const player1 = Player("o");
-const player2 = Player("x");
+  let activePlayer = players[0];
 
-// Test player.getToken()
-//console.log(player1.getToken());
-//PASS
+  const switchActivePlayer = () => {
+    activePlayer = activePlayer === players[0] ? players[1] : players[0];
+  };
 
-// Test Cell.addToken()
-// const testCell = Cell();
-// const testCell2 = Cell();
-// testCell.addToken(player1);
-// console.log(testCell.isTaken());
-// console.log(testCell2.isTaken());
-//PASS
+  const getActivePlayer = () => activePlayer.name;
 
-// Test gameBoard.getToken
-// gameBoard.placeToken(player1, 2, 2);
-// gameBoard.getBoard().forEach((row) => {
-//   row.forEach((cell) => {
-//     console.log(cell.getToken());
-//   });
-// });
-//PASS
+  const printNewRound = () => console.log(`It is now ${getActivePlayer()}'s turn!`);
 
-// Test gameboard.printBoard
-// gameBoard.placeToken(player1, 2, 2);
-// gameBoard.placeToken(player2, 1, 1);
-// gameBoard.placeToken(player1, 3, 1);
-// gameBoard.placeToken(player2, 1, 3);
-// gameBoard.printBoard();
-//PASS
+  const playRound = (row, col) => {
+    console.log(`Placing an '${activePlayer.token}' on row ${row}, col ${col}.`);
+    gameBoard.placeToken(activePlayer.token, row, col);
+    gameBoard.printBoard();
+
+    switchActivePlayer();
+    printNewRound();
+  };
+
+  // Initial print message on initialize.
+  printNewRound();
+
+  return {
+    getActivePlayer,
+    playRound,
+  };
+})(gameBoard);
+
+// Global code ---------------------------------------
+gameController.playRound(2, 2);
+gameController.playRound(1, 1);
