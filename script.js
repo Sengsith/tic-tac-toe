@@ -1,7 +1,3 @@
-// if you only need a single instance of something (e.g. the gameboard, the displayController etc.) then wrap the factory inside an IIFE (module pattern) so it cannot be reused to create additional instances.
-// Each little piece of functionality should be able to fit in the game, player or gameboard objects.
-// Try to avoid thinking about the DOM and your HTML/CSS until your game is working.
-
 // Once you have a working console game, create an object that will handle the display/DOM logic.
 // Write a function that will render the contents of the gameboard array to the webpage (for now, you can always just fill the gameboard array with "X"s and "O"s just to see what’s going on).
 
@@ -9,14 +5,7 @@
 
 // Clean up the interface to allow players to put in their names, include a button to start/restart the game and add a display element that shows the results upon game end!
 
-// Single gameboard using IIFE
-// Single displayController using IIFE
-// Factory to create players since we have 2
-
 // Cell factory
-// empty - no player space
-// o - player1
-// x - player2
 const Cell = () => {
   let value = "";
 
@@ -30,9 +19,6 @@ const Cell = () => {
 };
 
 // gameBoard factory IIFE
-// Inputs: player1, player2
-// Outputs: gameBoard.board
-// private: gamestate enum,
 const gameBoard = (() => {
   const rows = 3;
   const cols = 3;
@@ -89,8 +75,48 @@ const gameController = (() => {
     gameBoard.placeToken(activePlayer.token, row, col);
     gameBoard.printBoard();
 
+    // Check for a win
+    if (checkForWin(row, col)) {
+      console.log(`${activePlayer.name} wins!`);
+      return;
+    }
+
     switchActivePlayer();
     printNewRound();
+  };
+
+  const checkForWin = (row, col) => {
+    return checkHorizontal(row) || checkVertical(col) || checkDiagonal();
+  };
+
+  const checkHorizontal = (row) => {
+    const horizontal = gameBoard
+      .getBoard()
+      [row - 1].map((cell) => cell.getToken())
+      .filter((value) => value === activePlayer.token);
+    return horizontal.length === 3;
+  };
+
+  const checkVertical = (col) => {
+    const vertical = gameBoard
+      .getBoard()
+      .map((row) => row[col - 1].getToken())
+      .filter((value) => value === activePlayer.token);
+    return vertical.length === 3;
+  };
+
+  const checkDiagonal = () => {
+    const diagonal = gameBoard
+      .getBoard()
+      .map((row, index) => row[index].getToken())
+      .filter((value) => value === activePlayer.token);
+    const diagonalReverse = gameBoard
+      .getBoard()
+      .reverse()
+      .map((row, index) => row[index].getToken())
+      .filter((value) => value === activePlayer.token);
+
+    return diagonal.length === 3 || diagonalReverse.length === 3;
   };
 
   // Initial print message on initialize.
@@ -103,5 +129,16 @@ const gameController = (() => {
 })(gameBoard);
 
 // Global code ---------------------------------------
+// Diagonal win
+// gameController.playRound(2, 2);
+// gameController.playRound(1, 2);
+// gameController.playRound(1, 1);
+// gameController.playRound(1, 3);
+// gameController.playRound(3, 3);
+
+// Diagonal Reverse win
 gameController.playRound(2, 2);
-gameController.playRound(1, 1);
+gameController.playRound(1, 2);
+gameController.playRound(1, 3);
+gameController.playRound(2, 3);
+gameController.playRound(3, 1);
