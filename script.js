@@ -60,6 +60,8 @@ const gameController = (() => {
     },
   ];
 
+  const board = gameBoard;
+
   let activePlayer = players[0];
 
   const switchActivePlayer = () => {
@@ -71,9 +73,9 @@ const gameController = (() => {
   const printNewRound = () => console.log(`It is now ${getActivePlayer()}'s turn!`);
 
   const playRound = (row, col) => {
-    console.log(`Placing an '${activePlayer.token}' on row ${row}, col ${col}.`);
-    gameBoard.placeToken(activePlayer.token, row, col);
-    gameBoard.printBoard();
+    // console.log(`Placing an '${activePlayer.token}' on row ${row}, col ${col}.`);
+    board.placeToken(activePlayer.token, row, col);
+    board.printBoard();
 
     // Check for a win
     if (checkForWin(row, col)) {
@@ -90,7 +92,7 @@ const gameController = (() => {
   };
 
   const checkHorizontal = (row) => {
-    const horizontal = gameBoard
+    const horizontal = board
       .getBoard()
       [row - 1].map((cell) => cell.getToken())
       .filter((value) => value === activePlayer.token);
@@ -98,7 +100,7 @@ const gameController = (() => {
   };
 
   const checkVertical = (col) => {
-    const vertical = gameBoard
+    const vertical = board
       .getBoard()
       .map((row) => row[col - 1].getToken())
       .filter((value) => value === activePlayer.token);
@@ -106,11 +108,11 @@ const gameController = (() => {
   };
 
   const checkDiagonal = () => {
-    const diagonal = gameBoard
+    const diagonal = board
       .getBoard()
       .map((row, index) => row[index].getToken())
       .filter((value) => value === activePlayer.token);
-    const diagonalReverse = gameBoard
+    const diagonalReverse = board
       .getBoard()
       .reverse()
       .map((row, index) => row[index].getToken())
@@ -120,25 +122,33 @@ const gameController = (() => {
   };
 
   // Initial print message on initialize.
-  printNewRound();
+  // printNewRound();
 
   return {
     getActivePlayer,
     playRound,
   };
-})(gameBoard);
+})();
 
-// Global code ---------------------------------------
-// Diagonal win
-// gameController.playRound(2, 2);
-// gameController.playRound(1, 2);
-// gameController.playRound(1, 1);
-// gameController.playRound(1, 3);
-// gameController.playRound(3, 3);
+const screenController = (() => {
+  const board = gameBoard;
+  const game = gameController;
+  const container = document.querySelector(".container");
 
-// Diagonal Reverse win
-gameController.playRound(2, 2);
-gameController.playRound(1, 2);
-gameController.playRound(1, 3);
-gameController.playRound(2, 3);
-gameController.playRound(3, 1);
+  const renderTilesToScreen = () => {
+    const newGrid = document.createElement("div");
+    newGrid.classList.add("grid");
+
+    board.getBoard().forEach((row) =>
+      row.forEach((cell) => {
+        const newTile = document.createElement("div");
+        newTile.classList.add("tile");
+
+        newGrid.appendChild(newTile);
+      })
+    );
+    container.appendChild(newGrid);
+  };
+
+  renderTilesToScreen();
+})();
