@@ -74,16 +74,13 @@ const gameController = (() => {
     incrementTurnCount();
     board.placeToken(activePlayer.token, row, col);
 
-    console.log(turnCount);
     // Check for tie
     if (checkForTie()) {
-      console.log("Tie Game!");
       gameOver = true;
       return;
     }
     // Check for a win
     if (checkForWin(row, col)) {
-      console.log(`${activePlayer.name} wins!`);
       gameOver = true;
       return;
     }
@@ -142,16 +139,19 @@ const screenController = (() => {
   const game = gameController;
   const board = gameBoard;
   const container = document.querySelector(".container");
-  const activePlayer = document.querySelector(".turn");
+  const activePlayerText = document.querySelector(".turn");
 
   const updateActivePlayerText = () => {
     if (game.checkForTie()) {
-      activePlayer.textContent = "Tie Game!";
+      activePlayerText.textContent = "Tie Game!";
       return;
     }
     if (!game.isGameOver())
-      activePlayer.innerHTML = `It is currently <b>${game.getActivePlayer().name}</b>'s turn!`;
-    else activePlayer.innerHTML = `<b>${game.getActivePlayer().name}</b> wins!`;
+      activePlayerText.innerHTML = `It is currently <b>${game.getActivePlayer().name}</b>'s turn!`;
+    else {
+      activePlayerText.innerHTML = `<b>${game.getActivePlayer().name}</b> wins!`;
+      updateGameOverTiles();
+    }
   };
 
   const updateTilesScreen = () => {
@@ -166,11 +166,21 @@ const screenController = (() => {
         newTile.dataset.row = rowIndex;
         newTile.dataset.col = colIndex;
 
-        newTile.textContent = cell.getToken();
         newGrid.appendChild(newTile);
       });
     });
     container.appendChild(newGrid);
+  };
+
+  // Renders all buttons unclickable
+  const updateGameOverTiles = () => {
+    const tiles = document.querySelectorAll(".tile");
+
+    tiles.forEach((tile) => {
+      if (!tile.classList.contains("active")) {
+        tile.classList.add("active");
+      }
+    });
   };
 
   updateActivePlayerText();
@@ -181,7 +191,7 @@ const screenController = (() => {
       const activePlayer = game.getActivePlayer();
       game.playRound(e.target.dataset.row, e.target.dataset.col);
       e.target.textContent = activePlayer.token;
-      // TODO: add a click class where it disables ability to click on a taken tile
+      e.target.classList.add("active");
 
       updateActivePlayerText();
     }
