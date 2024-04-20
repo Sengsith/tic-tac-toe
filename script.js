@@ -34,17 +34,10 @@ const gameBoard = (() => {
   const getBoard = () => board;
 
   const placeToken = (playerToken, row, col) => {
-    board[row - 1][col - 1].addToken(playerToken);
+    board[row][col].addToken(playerToken);
   };
 
-  const printBoard = () => {
-    board.forEach((row) => {
-      const rowValues = row.map((cell) => cell.getToken());
-      console.log(rowValues);
-    });
-  };
-
-  return { getBoard, placeToken, printBoard };
+  return { getBoard, placeToken };
 })();
 
 // gameController factory IIFE
@@ -52,40 +45,53 @@ const gameController = (() => {
   const players = [
     {
       name: "Player One",
-      token: "o",
+      token: "x",
     },
     {
       name: "Player Two",
-      token: "x",
+      token: "o",
     },
   ];
 
   const board = gameBoard;
 
   let activePlayer = players[0];
+  let gameOver = false;
+  let turnCount = 0;
 
   const switchActivePlayer = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   };
 
-  const getActivePlayer = () => activePlayer.name;
+  const getActivePlayer = () => activePlayer;
 
-  const printNewRound = () => console.log(`It is now ${getActivePlayer()}'s turn!`);
+  const incrementTurnCount = () => turnCount++;
+
+  const isGameOver = () => gameOver;
 
   const playRound = (row, col) => {
     // console.log(`Placing an '${activePlayer.token}' on row ${row}, col ${col}.`);
+    incrementTurnCount();
     board.placeToken(activePlayer.token, row, col);
-    board.printBoard();
 
+    console.log(turnCount);
+    // Check for tie
+    if (checkForTie()) {
+      console.log("Tie Game!");
+      gameOver = true;
+      return;
+    }
     // Check for a win
     if (checkForWin(row, col)) {
       console.log(`${activePlayer.name} wins!`);
+      gameOver = true;
       return;
     }
 
     switchActivePlayer();
-    printNewRound();
   };
+
+  const checkForTie = () => turnCount >= 9;
 
   const checkForWin = (row, col) => {
     return checkHorizontal(row) || checkVertical(col) || checkDiagonal();
@@ -94,7 +100,7 @@ const gameController = (() => {
   const checkHorizontal = (row) => {
     const horizontal = board
       .getBoard()
-      [row - 1].map((cell) => cell.getToken())
+      [row].map((cell) => cell.getToken())
       .filter((value) => value === activePlayer.token);
     return horizontal.length === 3;
   };
@@ -102,7 +108,7 @@ const gameController = (() => {
   const checkVertical = (col) => {
     const vertical = board
       .getBoard()
-      .map((row) => row[col - 1].getToken())
+      .map((row) => row[col].getToken())
       .filter((value) => value === activePlayer.token);
     return vertical.length === 3;
   };
@@ -118,37 +124,66 @@ const gameController = (() => {
       .map((row, index) => row[index].getToken())
       .filter((value) => value === activePlayer.token);
 
+    // Reverse is destructive
+    board.getBoard().reverse();
+
     return diagonal.length === 3 || diagonalReverse.length === 3;
   };
-
-  // Initial print message on initialize.
-  // printNewRound();
 
   return {
     getActivePlayer,
     playRound,
+    isGameOver,
+    checkForTie,
   };
 })();
 
 const screenController = (() => {
-  const board = gameBoard;
   const game = gameController;
+  const board = gameBoard;
   const container = document.querySelector(".container");
+  const activePlayer = document.querySelector(".turn");
 
-  const renderTilesToScreen = () => {
+  const updateActivePlayerText = () => {
+    if (game.checkForTie()) {
+      activePlayer.textContent = "Tie Game!";
+      return;
+    }
+    if (!game.isGameOver())
+      activePlayer.innerHTML = `It is currently <b>${game.getActivePlayer().name}</b>'s turn!`;
+    else activePlayer.innerHTML = `<b>${game.getActivePlayer().name}</b> wins!`;
+  };
+
+  const updateTilesScreen = () => {
+    container.textContent = "";
     const newGrid = document.createElement("div");
     newGrid.classList.add("grid");
 
-    board.getBoard().forEach((row) =>
-      row.forEach((cell) => {
-        const newTile = document.createElement("div");
+    board.getBoard().forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        const newTile = document.createElement("button");
         newTile.classList.add("tile");
+        newTile.dataset.row = rowIndex;
+        newTile.dataset.col = colIndex;
 
+        newTile.textContent = cell.getToken();
         newGrid.appendChild(newTile);
-      })
-    );
+      });
+    });
     container.appendChild(newGrid);
   };
 
-  renderTilesToScreen();
+  updateActivePlayerText();
+  updateTilesScreen();
+
+  container.addEventListener("click", (e) => {
+    if (e.target.classList.contains("tile")) {
+      const activePlayer = game.getActivePlayer();
+      game.playRound(e.target.dataset.row, e.target.dataset.col);
+      e.target.textContent = activePlayer.token;
+      // TODO: add a click class where it disables ability to click on a taken tile
+
+      updateActivePlayerText();
+    }
+  });
 })();
