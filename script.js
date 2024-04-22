@@ -161,7 +161,7 @@ const screenController = (() => {
   const modalPlayBtn = document.querySelector(".play");
 
   const askPlayerNames = () => {
-    modal.show();
+    modal.showModal();
   };
   modalPlayBtn.addEventListener("click", (e) => {
     e.preventDefault();
