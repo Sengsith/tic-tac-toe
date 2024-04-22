@@ -37,7 +37,7 @@ body {
   border: transparent;
   transition: transform 0.2s ease-in-out;
 }
-.tile:hover {
+button:hover {
   cursor: pointer;
   transform: scale(1.1);
 }
@@ -48,4 +48,18 @@ body {
 
 .test {
   outline: 1px solid green;
+}
+
+.reset {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  letter-spacing: 2px;
+  border: transparent;
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.reset:hover {
+  background-color: salmon;
+  color: rgb(255, 255, 255);
 }

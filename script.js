@@ -37,7 +37,16 @@ const gameBoard = (() => {
     board[row][col].addToken(playerToken);
   };
 
-  return { getBoard, placeToken };
+  const resetBoard = () => {
+    for (let i = 0; i < rows; i++) {
+      board[i] = [];
+      for (let j = 0; j < cols; j++) {
+        board[i].push(Cell());
+      }
+    }
+  };
+
+  return { getBoard, placeToken, resetBoard };
 })();
 
 // gameController factory IIFE
@@ -88,6 +97,13 @@ const gameController = (() => {
     switchActivePlayer();
   };
 
+  const resetGame = () => {
+    board.resetBoard();
+    activePlayer = players[0];
+    turnCount = 0;
+    gameOver = false;
+  };
+
   const checkForTie = () => turnCount >= 9;
 
   const checkForWin = (row, col) => {
@@ -132,6 +148,7 @@ const gameController = (() => {
     playRound,
     isGameOver,
     checkForTie,
+    resetGame,
   };
 })();
 
@@ -140,6 +157,7 @@ const screenController = (() => {
   const board = gameBoard;
   const container = document.querySelector(".container");
   const activePlayerText = document.querySelector(".turn");
+  const resetBtn = document.querySelector(".reset");
 
   const updateActivePlayerText = () => {
     if (game.checkForTie()) {
@@ -186,6 +204,7 @@ const screenController = (() => {
   updateActivePlayerText();
   updateTilesScreen();
 
+  // Tile click event
   container.addEventListener("click", (e) => {
     if (e.target.classList.contains("tile")) {
       const activePlayer = game.getActivePlayer();
@@ -195,5 +214,12 @@ const screenController = (() => {
 
       updateActivePlayerText();
     }
+  });
+
+  // Reset game click event
+  resetBtn.addEventListener("click", () => {
+    game.resetGame();
+    updateActivePlayerText();
+    updateTilesScreen();
   });
 })();
