@@ -13,6 +13,35 @@ body {
   align-items: center;
 }
 
+dialog {
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: 5;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+form > button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  border: transparent;
+}
+input {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: transparent;
+  outline: 1px solid gray;
+}
+
 .turn {
   font-size: 2rem;
 }
@@ -36,6 +65,7 @@ body {
   align-content: center;
   border: transparent;
   transition: transform 0.2s ease-in-out;
+  font-size: 4rem;
 }
 button:hover {
   cursor: pointer;
@@ -43,7 +73,16 @@ button:hover {
 }
 
 .active {
+  color: white;
   pointer-events: none;
+  position: relative;
+}
+.active::after {
+  content: "";
+  background-color: black;
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
 }
 
 .test {

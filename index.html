@@ -8,6 +8,15 @@
     <script src="script.js" defer></script>
   </head>
   <body>
+    <dialog data-modal>
+      <form method="dialog">
+        <label for="player-one">Player 1:</label>
+        <input type="text" name="player-one" id="player-one" autocomplete="off" />
+        <label for="player-twop">Player 2:</label>
+        <input type="text" name="player-two" id="player-two" autocomplete="off" />
+        <button class="play">Play!</button>
+      </form>
+    </dialog>
     <div class="turn"></div>
     <div class="container"></div>
     <button class="reset">RESET GAME</button>
