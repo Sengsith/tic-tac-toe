@@ -82,6 +82,8 @@ const gameController = (() => {
     return { playerOne: players[0].wins, playerTwo: players[1].wins };
   };
 
+  const incrementPlayerWins = () => getActivePlayer().wins++;
+
   const getPlayerNames = () => {
     return { playerOne: players[0].name, playerTwo: players[1].name };
   };
@@ -103,6 +105,7 @@ const gameController = (() => {
     // Check for a win
     if (checkForWin(row, col)) {
       gameOver = true;
+      incrementPlayerWins();
       return;
     }
 
