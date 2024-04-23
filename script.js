@@ -1,6 +1,7 @@
 // Cell factory
 const Cell = () => {
   let value = "";
+  let winningTile = false;
 
   const addToken = (player) => {
     value = player;
@@ -8,7 +9,10 @@ const Cell = () => {
 
   const getToken = () => value;
 
-  return { addToken, getToken };
+  const setWinningTile = () => (winningTile = true);
+
+  const getWinningTile = () => winningTile;
+  return { addToken, getToken, setWinningTile, getWinningTile };
 };
 
 // gameBoard factory IIFE
@@ -113,6 +117,12 @@ const gameController = (() => {
       .getBoard()
       [row].map((cell) => cell.getToken())
       .filter((value) => value === activePlayer.token);
+
+    // Set the winning tiles to change color later
+    if (horizontal.length === 3) {
+      // Set winning tile to true
+      board.getBoard()[row].forEach((cell) => cell.setWinningTile());
+    }
     return horizontal.length === 3;
   };
 
@@ -121,6 +131,12 @@ const gameController = (() => {
       .getBoard()
       .map((row) => row[col].getToken())
       .filter((value) => value === activePlayer.token);
+
+    // Set the winning tiles to change color later
+    if (vertical.length === 3) {
+      // Set winning tile to true
+      board.getBoard().forEach((row) => row[col].setWinningTile());
+    }
     return vertical.length === 3;
   };
 
@@ -135,8 +151,19 @@ const gameController = (() => {
       .map((row, index) => row[index].getToken())
       .filter((value) => value === activePlayer.token);
 
-    // Reverse is destructive
+    // Set the winning tiles to change color later
+    if (diagonalReverse.length === 3) {
+      board.getBoard().forEach((row, index) => row[index].setWinningTile());
+    }
+
+    // Reverse is destructive, reverse it back to normal
     board.getBoard().reverse();
+
+    // Set the winning tiles to change color later
+    if (diagonal.length === 3) {
+      // Set winning tile to true
+      board.getBoard().forEach((row, index) => row[index].setWinningTile());
+    }
 
     return diagonal.length === 3 || diagonalReverse.length === 3;
   };
@@ -216,6 +243,17 @@ const screenController = (() => {
         tile.classList.add("active");
       }
     });
+
+    // Create one array that tells us which indexes are true or false, set the true ones to a new bg color
+    const winningTiles = board
+      .getBoard()
+      .flatMap((row) => row.map((cell) => cell.getWinningTile()));
+
+    for (let i = 0; i < tiles.length; i++) {
+      if (winningTiles[i]) {
+        tiles[i].classList.add("win");
+      }
+    }
   };
 
   askPlayerNames();
