@@ -52,10 +52,12 @@ const gameController = (() => {
     {
       name: "Player One",
       token: "x",
+      wins: 0,
     },
     {
       name: "Player Two",
       token: "o",
+      wins: 0,
     },
   ];
 
@@ -74,6 +76,14 @@ const gameController = (() => {
   const setPlayerNames = (nameOne, nameTwo) => {
     players[0].name = nameOne;
     players[1].name = nameTwo;
+  };
+
+  const getPlayerWins = () => {
+    return { playerOne: players[0].wins, playerTwo: players[1].wins };
+  };
+
+  const getPlayerNames = () => {
+    return { playerOne: players[0].name, playerTwo: players[1].name };
   };
 
   const incrementTurnCount = () => turnCount++;
@@ -175,6 +185,8 @@ const gameController = (() => {
     checkForTie,
     resetGame,
     setPlayerNames,
+    getPlayerWins,
+    getPlayerNames,
   };
 })();
 
@@ -186,6 +198,8 @@ const screenController = (() => {
   const resetBtn = document.querySelector(".reset");
   const modal = document.querySelector("[data-modal]");
   const modalPlayBtn = document.querySelector(".play");
+  const playerOneWinsText = document.querySelector(".player-one-wins");
+  const playerTwoWinsText = document.querySelector(".player-two-wins");
 
   const askPlayerNames = () => {
     modal.showModal();
@@ -199,6 +213,7 @@ const screenController = (() => {
 
     game.setPlayerNames(playerOne, playerTwo);
     updateActivePlayerText();
+    updatePlayerWinsText();
 
     modal.close();
   });
@@ -256,9 +271,17 @@ const screenController = (() => {
     }
   };
 
+  const updatePlayerWinsText = () => {
+    const playerNames = game.getPlayerNames();
+    const playerWins = game.getPlayerWins();
+    playerOneWinsText.textContent = `${playerNames.playerOne}: ${playerWins.playerOne} wins`;
+    playerTwoWinsText.textContent = `${playerNames.playerTwo}: ${playerWins.playerTwo} wins`;
+  };
+
   askPlayerNames();
   updateActivePlayerText();
   updateTilesScreen();
+  updatePlayerWinsText();
 
   // Tile click event
   container.addEventListener("click", (e) => {
